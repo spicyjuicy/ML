@@ -62,3 +62,4 @@ df = Stock('FB.csv')
 df.ready_up()
 df.print_head(20)
 #df.print_tail(20)
+#yoyoyo
