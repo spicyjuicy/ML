@@ -25,6 +25,9 @@ train_images = train_images / 255.0
 
 test_images = test_images / 255.0
 
+print(np.shape(test_images),np.shape(test_images),test_labels)
+
+'''
 plt.figure(figsize=(10,10))
 for i in range(25):
     plt.subplot(5,5,i+1)
@@ -48,4 +51,4 @@ model.fit(train_images, train_labels, epochs=5)
 
 test_loss, test_acc = model.evaluate(test_images, test_labels)
 
-print('Test accuracy:', test_acc)
+print('Test accuracy:', test_acc)'''
