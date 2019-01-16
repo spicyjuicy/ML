@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from tensorflow import keras
 
 class Stock:
 
@@ -45,7 +46,7 @@ class Stock:
         for column in df:
             df[column] = df[column]/df[column].max()
 
-        #df = df.drop(columns=['major_index'])
+        df = df.drop(columns=['major_index','WeekNum'])
 
         self.df2 = df
 
@@ -68,12 +69,12 @@ class Stock:
    
 def create_labels(array):
 
-    labels = []
+    labels = np.zeros(len(array),dtype=int)
     for x in range(len(array)-1):
         if array[x+1][0][3] > array[x][4][3]:
-            labels.append('Up')
+            labels[x] = int(0)
         else:
-            labels.append('Down')
+            labels[x] = int(1)
 
     return labels
 
@@ -83,6 +84,9 @@ def split_data(full_data,full_labels, size):
     lab1 , lab2 = full_labels[:size] , full_labels[size:]
 
     return (arr1 ,lab1), (arr2,lab2)
+
+
+
 
 
 
@@ -99,6 +103,40 @@ df.print_tail(20)
 arrays = df.arrs
 labels = create_labels(arrays)
 
+class_names = ['Up','Down']
 
-(train_data,train_labels) , (test_data,test_labels) = split_data(arrays,labels,1000)
 
+(train_images,train_labels) , (test_images,test_labels) = split_data(arrays,labels,1000)
+print(np.shape(test_images))
+
+plt.figure(figsize=(5,6))
+for i in range(25):
+    plt.subplot(5,5,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(train_images[i], cmap=plt.cm.binary)
+    plt.xlabel(class_names[int(train_labels[i])])
+#plt.show()
+
+print(np.shape(test_images),np.shape(test_images),test_labels)
+
+test_images = np.asarray(test_images)
+print(type(test_images))
+
+
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(5, 6)),
+    keras.layers.Dense(5, activation=tf.nn.relu),
+    keras.layers.Dense(2, activation=tf.nn.softmax)
+])
+
+model.compile(optimizer=tf.train.AdamOptimizer(), 
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(np.array(train_images), np.array(train_labels), epochs=5)
+
+test_loss, test_acc = model.evaluate(np.array(test_images), np.array(test_labels))
+
+print('Test accuracy:', test_acc)

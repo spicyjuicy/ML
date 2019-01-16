@@ -20,12 +20,14 @@ plt.imshow(train_images[0])
 plt.colorbar()
 plt.grid(False)
 
+print(test_labels)
+
 
 train_images = train_images / 255.0
 
 test_images = test_images / 255.0
 
-print(np.shape(test_images),np.shape(test_images),test_labels)
+print(np.shape(test_images),np.shape(test_images),test_labels,test_images,type(test_images))
 
 '''
 plt.figure(figsize=(10,10))
@@ -36,6 +38,7 @@ for i in range(25):
     plt.grid(False)
     plt.imshow(train_images[i], cmap=plt.cm.binary)
     plt.xlabel(class_names[train_labels[i]])
+plt.show()
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(28, 28)),
