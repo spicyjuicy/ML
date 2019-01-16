@@ -8,19 +8,19 @@ class Stock:
 
     def __init__(self, file,split_size):
         self.file = file
+        self.split_size = split_size
         self.ready_up()
-        self.split(split_size)
+        self.split()
+        self.create_labels()
+        self.split_data()
 
     def ready_up(self):
         
         df = pd.read_csv(self.file)
 
         df['Day_Name'] = pd.to_datetime(df['Date'])
-        #print(df['Date'].iloc[0],df['Date'].iloc[-1])
         idx = pd.date_range(df['Date'].iloc[0],df['Date'].iloc[-1])
-
         df.index = pd.DatetimeIndex(df['Day_Name'])
-
         df = df.reindex(idx,fill_value=0.0)
 
         df['Date'] = df.index
@@ -48,65 +48,64 @@ class Stock:
 
         df = df.drop(columns=['major_index','WeekNum'])
 
-        self.df2 = df
+        self.dataframe = df
 
-    def split(self,split_size):
-        #print(len(self.df2))
+    def split(self):
 
-        self.arrs = np.split(self.df2.values,len(self.df2)/split_size)        
+        self.split_array = np.split(self.dataframe.values,len(self.dataframe)/5)
+       # arr = self.split_array
+      #  self.split_array = np.random.shuffle(arr)
+
         
 
     def print_head(self,size):
 
-        print(self.df2.head(size))
-        print(self.df2.dtypes,len(self.df2.columns),len(self.df2))
-
+        print(self.dataframe.head(size))
+        
     def print_tail(self,size):
 
         print(self.df2.tail(size))
-        print(self.df2.dtypes,len(self.df2.columns))
 
-   
-def create_labels(array):
+    def print_stats(self):
+        print(self.dataframe.dtypes,len(self.dataframe.columns),len(self.dataframe))
+        
+    def create_labels(self):
 
-    labels = np.zeros(len(array),dtype=int)
-    for x in range(len(array)-1):
-        if array[x+1][0][3] > array[x][4][3]:
-            labels[x] = int(0)
-        else:
-            labels[x] = int(1)
+        labels = np.zeros(len(self.split_array),dtype=int)
+        for x in range(len(self.split_array)-1):
+            if self.split_array[x+1][0][3] > self.split_array[x][4][3]:
+                labels[x] = int(0)
+            else:
+                labels[x] = int(1)
 
-    return labels
+        self.labels_array = labels
 
-def split_data(full_data,full_labels, size):
+    def split_data(self):
 
-    arr1 , arr2 = full_data[:size] , full_data[size:]
-    lab1 , lab2 = full_labels[:size] , full_labels[size:]
+        size = int(len(self.split_array) / 2)
 
-    return (arr1 ,lab1), (arr2,lab2)
-
-
-
+        self.train_data , self.test_data = self.split_array[:size] , self.split_array[size:]
+        self.train_labels , self.test_labels = self.labels_array[:size] , self.labels_array[size:]
 
 
 
-df = Stock('FB.csv',5)
-print(len(df.df2))
 
-#print(df.arrs)
-print(np.shape(df.arrs))
-create_labels(df.arrs)
-df.print_head(20)
-df.print_tail(20)
-#df.print_tail(20)
 
-arrays = df.arrs
-labels = create_labels(arrays)
+
+FB = Stock('FB.csv',5)
+
+
+
 
 class_names = ['Up','Down']
 
+train_images = FB.train_data
+train_labels = FB.train_labels
 
-(train_images,train_labels) , (test_images,test_labels) = split_data(arrays,labels,1000)
+test_images = FB.test_data
+test_labels = FB.test_labels
+
+
 print(np.shape(test_images))
 
 plt.figure(figsize=(5,6))
